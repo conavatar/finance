@@ -80,3 +80,36 @@
         info (rest-stock-info data)]
     (stock. name (map #(parse-stock-info %) info))
     ))
+
+
+;; - trial to get current data from google
+(def google-real-time-data "http://www.google.com/finance?q=%s")
+
+(defn get-url-google [symbol]
+  (format google-real-time-data symbol))
+
+(defn goog-data [sym]
+  (let [agnts (fetch-url (get-url-google sym))]
+    (collect-response agnts)))
+
+(def goog-range "<span class=\"goog-inline-block key\" data-snapfield=\"range\">Range</span>\\n<span class=\"goog-inline-block val\">52.37 - 53.21</span>")
+
+(def goog-test-range #"range\">Range<\/span>\\n<span class=\"goog-inline-block val\">(.*)<\/span>")
+
+(defn goog [sym]
+  (re-find #"goog-inline-block val\">(.*)<\/span>" (first (goog-data sym))))
+
+(defn goog [sym]
+  (let [[high low] (clojure.contrib.string/split #" - " (first (rest   (re-find #"goog-inline-block val\">(.*)<\/span>" (first (goog-data sym))))))]
+    (format "%s : Days Range %f - %f\n" (.toUpperCase sym) (Float/parseFloat high) (Float/parseFloat low))))
+
+(def myStockList ["NSE:WIPRO" "QCOM"])
+
+(defn my-test []
+  (map goog myStockList))
+
+
+;; other data to be parsing in google
+
+;; perf:[{u:"/finance?q=NSE:WIPRO",name:"WIPRO",cp:"-0.85",p:"354.55"
+;; Unable to find if I can introduce a variable in the regex pattern...need to check if macro will help
