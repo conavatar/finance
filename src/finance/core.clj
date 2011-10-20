@@ -1,6 +1,6 @@
 (ns finance.core
-  (:use [clojure.contrib.http.agent :only [http-agent status]])
-  (:require [clojure.contrib.string :as ss])
+  (:use [clojure.contrib.http.agent :only [http-agent status string]])
+;;  (:require [clojure.contrib.string :as ss])
   (:require [clj-time.core :as time])
   )
 
@@ -34,7 +34,7 @@
   [url]
   (http-agent url))
 
-
+;; string method of http.agent prints the output correctly, as i had removed it, it was causing issue in getting the data
 (defn- collect-response
   "Wait for all the agents to finish and then return the response"
   [& agnts]
@@ -43,6 +43,7 @@
     (if (= (status a) 200)
       (string a)
       (status a))))
+
 
 
 (defn fetch-historical-data
@@ -54,6 +55,7 @@
           urls (map (partial get-full-url y1 m1 d1 y2 m2 d2) syms)
           agnts (map fetch-url urls)]
       (zipmap syms (apply collect-response agnts)))))
+
 
 
 ;;;; -- my functions --- ;;;;
